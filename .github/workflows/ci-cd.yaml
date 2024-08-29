@@ -119,9 +119,7 @@ jobs:
           sed -i '' "s|image: .*frontend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }}|" k8s/*frontend*.yaml
           sed -i '' "s|image: .*backend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}|" k8s/*backend*.yaml
           kubectl apply -f k8s/
-          kubectl wait --for=condition=available --timeout=600s deployment --all
-          kubectl get pods
-          kubectl get services
+
 
       - name: Set up SSH for Kind cluster access
         run: |
