@@ -1,0 +1,30 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: ./backend
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
+  frontend:
+    build:
+      context: ./frontend
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64  # Specify the platform for MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: taskdb
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
