@@ -1,7 +1,8 @@
-const React = require('react');
-const { render, screen, fireEvent, waitFor } = require('@testing-library/react');
-const axios = require('axios');
-const App = require('./App').default;
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import axios from 'axios';
+import App from './App';
 
 jest.mock('axios');
 
