@@ -76,5 +76,10 @@ app.delete('/tasks/:id', async (req, res) => {
     }
 });
 
+if (process.env.NODE_ENV !== 'test') {
+    const port = process.env.PORT || 5000;
+    app.listen(port, () => console.log(`Server running on port ${port}`));
+}
+
 // Export for testing
 module.exports = { app, initializePool };
