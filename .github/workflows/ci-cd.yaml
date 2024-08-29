@@ -10,23 +10,55 @@ jobs:
   build-and-test:
     runs-on: self-hosted
     steps:
+      - name: Debug Environment Variables
+        run: |
+          echo "NODE_OPTIONS: $NODE_OPTIONS"
+          echo "Path: $PATH"
+          echo "All environment variables:"
+          env
+
       - uses: actions/checkout@v2
+
+      - name: Debug After Checkout
+        run: |
+          echo "Current working directory after checkout: $(pwd)"
+          echo "Contents of current directory after checkout:"
+          ls -la
+          echo "Contents of _work directory:"
+          ls -la $RUNNER_WORKSPACE
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
+      - name: Verify Node.js Setup
+        run: |
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "Which node: $(which node)"
+          echo "Which npm: $(which npm)"
+
+      - name: Clear NODE_OPTIONS
+        run: unset NODE_OPTIONS
+
       - name: Install frontend dependencies
         run: |
           cd frontend
-          npm ci
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Install backend dependencies
         run: |
           cd backend
-          npm ci
-
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
       - name: Run frontend tests
         run: |
           cd frontend
@@ -37,6 +69,12 @@ jobs:
           cd backend
           npm test
 
+      - name: Minimize cleanup
+        if: always()
+        run: |
+          npm cache clean --force
+          rm -rf frontend/node_modules backend/node_modules
+          rm -rf ~/.npm
   build-and-push-docker:
     needs: build-and-test
     runs-on: self-hosted
