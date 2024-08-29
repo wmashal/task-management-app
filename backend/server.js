@@ -6,15 +6,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = mysql.createPool({
-    host: 'mysql',
-    user: 'root',
-    password: 'rootpassword',
-    database: 'taskdb',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+let pool;
+
+const initializePool = () => {
+    pool = mysql.createPool({
+        host: 'mysql',
+        user: 'root',
+        password: 'rootpassword',
+        database: 'taskdb',
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0
+    });
+};
+
+// Only initialize the pool if it hasn't been initialized yet
+if (!pool) {
+    initializePool();
+}
 
 app.get('/tasks', async (req, res) => {
     try {
@@ -67,6 +76,5 @@ app.delete('/tasks/:id', async (req, res) => {
     }
 });
 
-const port = 5000;
-app.listen(port, () => console.log(`Server running on port ${port}`));
-module.exports = app;
+// Export for testing
+module.exports = { app, initializePool };
