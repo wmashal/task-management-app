@@ -7,6 +7,44 @@ on:
     branches: [ main ]
 
 jobs:
+  pr-checks:
+    if: github.event_name == 'pull_request'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd frontend && npm ci
+          cd ../backend && npm ci
+
+      - name: Run linters
+        run: |
+          cd frontend && npm run lint
+          cd ../backend && npm run lint
+
+      - name: Run unit tests
+        run: |
+          cd frontend && npm test -- --passWithNoTests
+          cd ../backend && npm test
+
+      - name: Run OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'Task Management App'
+          path: '.'
+          format: 'HTML'
+
+      - name: Upload dependency check report
+        uses: actions/upload-artifact@v2
+        with:
+          name: dependency-check-report
+          path: ${{ github.workspace }}/reports
   build-and-test:
     runs-on: self-hosted
     steps:
@@ -68,6 +106,17 @@ jobs:
         run: |
           cd backend
           npm test
+      - name: Run SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=task-management-app
+            -Dsonar.sources=frontend/src,backend/src
+            -Dsonar.tests=frontend/__tests__,backend/__tests__
+            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info
 
       - name: Minimize cleanup
         if: always()
