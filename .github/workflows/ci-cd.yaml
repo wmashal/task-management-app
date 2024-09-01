@@ -117,8 +117,8 @@ jobs:
         run: |
           sonar-scanner \
             -Dsonar.projectKey=task-management-app \
-            -Dsonar.sources=frontend/src,backend/src \
-            -Dsonar.tests=frontend/src,backend \
+            -Dsonar.sources=frontend/src,backend \
+            -Dsonar.tests=frontend/src,backend/tests \
             -Dsonar.test.inclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx \
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info \
             -Dsonar.host.url=$SONAR_HOST_URL \
