@@ -127,17 +127,18 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=task-management-app \
-            -Dsonar.sources=frontend/src,backend \
-            -Dsonar.tests=frontend/src,backend/tests \
-            -Dsonar.test.inclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx \
-            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info \
-            -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx,**/node_modules/**,**/coverage/** \
-            -Dsonar.testExecutionReportPaths=frontend/test-report.xml,backend/test-report.xml \
-            -Dsonar.javascript.jstest.reportsPath=frontend/coverage,backend/coverage \
-            -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.login=$SONAR_TOKEN
-
+          -Dsonar.projectKey=task-management-app \
+          -Dsonar.sources=src \
+          -Dsonar.tests=src \
+          -Dsonar.test.inclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx \
+          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+          -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx,**/node_modules/**,**/coverage/** \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN
+      - name: Check coverage file
+        run: |
+          ls -l coverage/lcov.info
+          head -n 20 coverage/lcov.info
       - name: Minimize cleanup
         if: always()
         run: |

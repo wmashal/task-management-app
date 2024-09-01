@@ -21,6 +21,14 @@
 
   },
   "jest": {
-    "testEnvironment": "node"
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.{js,jsx,ts,tsx}",
+      "!**/*.d.ts",
+      "!index.js",
+      "!reportWebVitals.js"
+    ],
+    "coverageReporters": ["lcov", "text-summary"],
+    "testEnvironment": "jsdom"
   }
 }
