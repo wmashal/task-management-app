@@ -127,10 +127,10 @@ jobs:
         run: |
           sonar-scanner \
           -Dsonar.projectKey=task-management-app \
-          -Dsonar.sources=src \
-          -Dsonar.tests=src \
+          -Dsonar.sources=frontend/src,backend \
+          -Dsonar.tests=frontend/src,backend/tests \
           -Dsonar.test.inclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx \
-          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+          -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info \
           -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx,**/node_modules/**,**/coverage/** \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN
