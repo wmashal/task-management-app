@@ -118,7 +118,8 @@ jobs:
           sonar-scanner \
             -Dsonar.projectKey=task-management-app \
             -Dsonar.sources=frontend/src,backend/src \
-            -Dsonar.tests=frontend/__tests__,backend/__tests__ \
+            -Dsonar.tests=frontend/src,backend/src \
+            -Dsonar.test.inclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx \
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info \
             -Dsonar.host.url=$SONAR_HOST_URL \
             -Dsonar.login=$SONAR_TOKEN
