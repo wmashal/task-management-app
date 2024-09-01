@@ -134,10 +134,7 @@ jobs:
           -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx,**/node_modules/**,**/coverage/** \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN
-      - name: Check coverage file
-        run: |
-          ls -l coverage/lcov.info
-          head -n 20 coverage/lcov.info
+
       - name: Minimize cleanup
         if: always()
         run: |
