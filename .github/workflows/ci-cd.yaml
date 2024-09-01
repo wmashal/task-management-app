@@ -196,11 +196,6 @@ jobs:
             trivy-results-frontend.json
             trivy-results-backend.json
 
-      - name: Upload Trivy scan results for backend Docker image
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: 'trivy-results-backend.sarif'
 
   deploy-and-test:
     needs: build-and-push-docker
