@@ -13,22 +13,19 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "jest --detectOpenHandles --forceExit",
+    "test": "jest --coverage --detectOpenHandles --forceExit",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint .",
-    "test": "jest --coverage"
-
+    "lint": "eslint ."
   },
   "jest": {
     "collectCoverage": true,
-    "collectCoverageFrom": [
-      "**/*.{js,jsx,ts,tsx}",
-      "!**/*.d.ts",
-      "!index.js",
-      "!reportWebVitals.js"
-    ],
     "coverageReporters": ["lcov", "text-summary"],
-    "testEnvironment": "jsdom"
+    "coverageDirectory": "coverage",
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/tests/"
+    ]
   }
 }
