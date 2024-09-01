@@ -64,13 +64,13 @@ jobs:
 
       - name: Run Trivy vulnerability scanner in repo mode
         run: |
-          trivy fs --format sarif --output trivy-results.sarif --severity HIGH,CRITICAL .
+          trivy fs --format json --output trivy-results.json --severity HIGH,CRITICAL .
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
+      - name: Upload Trivy scan results
+        uses: actions/upload-artifact@v2
         with:
-          sarif_file: 'trivy-results.sarif'
+          name: trivy-results
+          path: trivy-results.json
 
       - name: Debug After Checkout
         run: |
@@ -182,17 +182,19 @@ jobs:
 
       - name: Run Trivy vulnerability scanner on frontend image
         run: |
-          trivy image --format sarif --output trivy-results-frontend.sarif --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }}
+          trivy image --format json --output trivy-results-frontend.json --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }}
 
       - name: Run Trivy vulnerability scanner on backend image
         run: |
-          trivy image --format sarif --output trivy-results-backend.sarif --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}
+          trivy image --format json --output trivy-results-backend.json --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}
 
-      - name: Upload Trivy scan results for frontend Docker image
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
+      - name: Upload Docker image scan results
+        uses: actions/upload-artifact@v2
         with:
-          sarif_file: 'trivy-results-frontend.sarif'
+          name: docker-scan-results
+          path: |
+            trivy-results-frontend.json
+            trivy-results-backend.json
 
       - name: Upload Trivy scan results for backend Docker image
         uses: github/codeql-action/upload-sarif@v2
