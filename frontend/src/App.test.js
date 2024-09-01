@@ -27,10 +27,9 @@ describe('App Component', () => {
 
         render(<App />);
 
-        await waitFor(() => {
-            expect(screen.getByText(/Task 1/i)).toBeInTheDocument();
+        await waitFor(() => expect(screen.getByText(/Task 1/i)).toBeInTheDocument())
             expect(screen.getByText(/Task 2/i)).toBeInTheDocument();
-        });
+
 
         expect(axios.get).toHaveBeenCalledWith('http://localhost:5000/tasks');
     });
@@ -45,10 +44,10 @@ describe('App Component', () => {
         fireEvent.change(screen.getByPlaceholderText(/Description/i), { target: { value: 'New Description' } });
         fireEvent.click(screen.getByRole('button', { name: /Add Task/i }));
 
-        await waitFor(() => {
-            expect(screen.getByText(/New Task/i)).toBeInTheDocument();
+        await waitFor(() =>
+            expect(screen.getByText(/New Task/i)).toBeInTheDocument())
             expect(screen.getByText(/New Description/i)).toBeInTheDocument();
-        });
+
 
         expect(axios.post).toHaveBeenCalledWith('http://localhost:5000/tasks', { title: 'New Task', description: 'New Description' });
     });
