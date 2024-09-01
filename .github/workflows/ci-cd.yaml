@@ -97,10 +97,10 @@ jobs:
           else
             npm install
           fi
-      - name: Run frontend tests
+      - name: Run frontend tests with coverage
         run: |
           cd frontend
-          npm test -- --passWithNoTests
+          npm test
 
       - name: Run backend tests
         run: |
@@ -110,17 +110,16 @@ jobs:
         run: |
           brew install sonar-scanner
           echo "$(brew --prefix)/bin" >> $GITHUB_PATH
-      - name: Generate coverage reports
-        run: |
-          cd frontend && npm run test -- --coverage
-          cd ../backend && npm run test -- --coverage
 
       - name: Check coverage files
         run: |
+          echo "Frontend coverage:"
           ls -l frontend/coverage/lcov.info
-          ls -l backend/coverage/lcov.info
           head -n 20 frontend/coverage/lcov.info
+          echo "Backend coverage:"
+          ls -l backend/coverage/lcov.info
           head -n 20 backend/coverage/lcov.info
+
       - name: Run SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

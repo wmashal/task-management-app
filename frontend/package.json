@@ -15,11 +15,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --coverage --watchAll=false",
     "eject": "react-scripts eject",
-    "lint": "eslint .",
-    "test": "jest --coverage"
-
+    "lint": "eslint ."
   },
   "eslintConfig": {
     "extends": [
@@ -40,14 +38,12 @@
     ]
   },
   "jest": {
-    "collectCoverage": true,
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
       "!src/**/*.d.ts",
       "!src/index.js",
       "!src/reportWebVitals.js"
     ],
-    "coverageReporters": ["lcov", "text-summary"],
-    "testEnvironment": "jsdom"
+    "coverageReporters": ["lcov", "text-summary"]
   }
 }
