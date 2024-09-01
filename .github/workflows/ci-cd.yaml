@@ -106,6 +106,10 @@ jobs:
         run: |
           cd backend
           npm test
+      - name: Install SonarScanner
+        run: |
+          brew install sonar-scanner
+          echo "$(brew --prefix)/bin" >> $GITHUB_PATH
       - name: Run SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
