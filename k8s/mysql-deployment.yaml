@@ -1,7 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: mysql-deployment
+  namespace: task-management
 spec:
   replicas: 1
   selector:
@@ -9,19 +10,27 @@ spec:
       app: mysql
   template:
     metadata:
+      name: mysql-pod
       labels:
         app: mysql
     spec:
       containers:
-        - name: mysql
+        - name: mysql-container
           image: mysql:latest
           ports:
             - containerPort: 3306
           env:
+            - name: MYSQL_DATABASE
+              value: taskdb
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mysql-secret
                   key: mysql-root-password
-            - name: MYSQL_DATABASE
-              value: taskdb
+          volumeMounts:
+            - name: mysql-initdb
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mysql-initdb
+        configMap:
+          name: mysql-initdb-config
