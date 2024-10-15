@@ -45,215 +45,215 @@ jobs:
         with:
           name: dependency-check-report
           path: ${{ github.workspace }}/reports
-  build-and-test:
-    if: github.event_name != 'pull_request'
-    runs-on: self-hosted
-    steps:
-      - name: Debug Environment Variables
-        run: |
-          echo "NODE_OPTIONS: $NODE_OPTIONS"
-          echo "Path: $PATH"
-          echo "All environment variables:"
-          env
+  # build-and-test:
+  #   if: github.event_name != 'pull_request'
+  #   runs-on: self-hosted
+  #   steps:
+  #     - name: Debug Environment Variables
+  #       run: |
+  #         echo "NODE_OPTIONS: $NODE_OPTIONS"
+  #         echo "Path: $PATH"
+  #         echo "All environment variables:"
+  #         env
 
-      - uses: actions/checkout@v2
-
-
-      - name: Install Trivy
-        run: |
-          brew install aquasecurity/trivy/trivy
-
-      - name: Run Trivy vulnerability scanner in repo mode
-        run: |
-          trivy fs --format json --output trivy-results.json --severity HIGH,CRITICAL .
-
-      - name: Upload Trivy scan results
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-results
-          path: trivy-results.json
-
-      - name: Debug After Checkout
-        run: |
-          echo "Current working directory after checkout: $(pwd)"
-          echo "Contents of current directory after checkout:"
-          ls -la
-          echo "Contents of _work directory:"
-          ls -la $RUNNER_WORKSPACE
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
-
-      - name: Verify Node.js Setup
-        run: |
-          echo "Node version: $(node -v)"
-          echo "NPM version: $(npm -v)"
-          echo "Which node: $(which node)"
-          echo "Which npm: $(which npm)"
-
-      - name: Clear NODE_OPTIONS
-        run: unset NODE_OPTIONS
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-      - name: Run frontend tests with coverage
-        run: |
-          cd frontend
-          npm test
-
-      - name: Run backend tests with coverage
-        run: |
-          cd backend
-          npm test
-      - name: Install SonarScanner
-        run: |
-          brew install sonar-scanner
-          echo "$(brew --prefix)/bin" >> $GITHUB_PATH
-
-      - name: Check coverage files
-        run: |
-          echo "Frontend coverage:"
-          ls -l frontend/coverage/lcov.info
-          head -n 20 frontend/coverage/lcov.info
-          echo "Backend coverage:"
-          ls -l backend/coverage/lcov.info
-          head -n 20 backend/coverage/lcov.info
-
-      - name: Run SonarQube Scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: |
-          sonar-scanner \
-          -Dsonar.projectKey=task-management-app \
-          -Dsonar.sources=frontend/src,backend \
-          -Dsonar.tests=frontend/src,backend/tests \
-          -Dsonar.test.inclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx \
-          -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info \
-          -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx,**/node_modules/**,**/coverage/** \
-          -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN
-
-      - name: Minimize cleanup
-        if: always()
-        run: |
-          npm cache clean --force
-          rm -rf frontend/node_modules backend/node_modules
-          rm -rf ~/.npm
-  build-and-push-docker:
-    if: github.event_name != 'pull_request'
-    needs: build-and-test
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Build and push frontend Docker image
-        run: |
-          docker buildx create --use
-          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }} -f frontend/Dockerfile frontend --push
-
-      - name: Build and push backend Docker image
-        run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }} -f backend/Dockerfile backend --push
-
-      - name: Run Trivy vulnerability scanner on frontend image
-        run: |
-          trivy image --format json --output trivy-results-frontend.json --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }}
-
-      - name: Run Trivy vulnerability scanner on backend image
-        run: |
-          trivy image --format json --output trivy-results-backend.json --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}
-
-      - name: Upload Docker image scan results
-        uses: actions/upload-artifact@v2
-        with:
-          name: docker-scan-results
-          path: |
-            trivy-results-frontend.json
-            trivy-results-backend.json
+  #     - uses: actions/checkout@v2
 
 
-  deploy-and-test:
-    if: github.event_name != 'pull_request'
-    needs: build-and-push-docker
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v2
+  #     - name: Install Trivy
+  #       run: |
+  #         brew install aquasecurity/trivy/trivy
 
-      - name: Install kubectl
-        run: brew install kubectl
+  #     - name: Run Trivy vulnerability scanner in repo mode
+  #       run: |
+  #         trivy fs --format json --output trivy-results.json --severity HIGH,CRITICAL .
 
-      - name: Install Kind
-        run: brew install kind
+  #     - name: Upload Trivy scan results
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: trivy-results
+  #         path: trivy-results.json
 
-      - name: Create k8s Kind Cluster
-        run: kind create cluster --name task-management-cluster
+  #     - name: Debug After Checkout
+  #       run: |
+  #         echo "Current working directory after checkout: $(pwd)"
+  #         echo "Contents of current directory after checkout:"
+  #         ls -la
+  #         echo "Contents of _work directory:"
+  #         ls -la $RUNNER_WORKSPACE
 
-      - name: Deploy to Kind Cluster
-        run: |
-          sed -i '' "s|image: .*frontend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }}|" k8s/*frontend*.yaml
-          sed -i '' "s|image: .*backend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}|" k8s/*backend*.yaml
-          kubectl apply -f k8s/
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: '18'
+
+  #     - name: Verify Node.js Setup
+  #       run: |
+  #         echo "Node version: $(node -v)"
+  #         echo "NPM version: $(npm -v)"
+  #         echo "Which node: $(which node)"
+  #         echo "Which npm: $(which npm)"
+
+  #     - name: Clear NODE_OPTIONS
+  #       run: unset NODE_OPTIONS
+
+  #     - name: Install frontend dependencies
+  #       run: |
+  #         cd frontend
+  #         if [ -f package-lock.json ]; then
+  #           npm ci
+  #         else
+  #           npm install
+  #         fi
+
+  #     - name: Install backend dependencies
+  #       run: |
+  #         cd backend
+  #         if [ -f package-lock.json ]; then
+  #           npm ci
+  #         else
+  #           npm install
+  #         fi
+  #     - name: Run frontend tests with coverage
+  #       run: |
+  #         cd frontend
+  #         npm test
+
+  #     - name: Run backend tests with coverage
+  #       run: |
+  #         cd backend
+  #         npm test
+  #     - name: Install SonarScanner
+  #       run: |
+  #         brew install sonar-scanner
+  #         echo "$(brew --prefix)/bin" >> $GITHUB_PATH
+
+  #     - name: Check coverage files
+  #       run: |
+  #         echo "Frontend coverage:"
+  #         ls -l frontend/coverage/lcov.info
+  #         head -n 20 frontend/coverage/lcov.info
+  #         echo "Backend coverage:"
+  #         ls -l backend/coverage/lcov.info
+  #         head -n 20 backend/coverage/lcov.info
+
+  #     - name: Run SonarQube Scan
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  #       run: |
+  #         sonar-scanner \
+  #         -Dsonar.projectKey=task-management-app \
+  #         -Dsonar.sources=frontend/src,backend \
+  #         -Dsonar.tests=frontend/src,backend/tests \
+  #         -Dsonar.test.inclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx \
+  #         -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info \
+  #         -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx,**/node_modules/**,**/coverage/** \
+  #         -Dsonar.host.url=$SONAR_HOST_URL \
+  #         -Dsonar.login=$SONAR_TOKEN
+
+  #     - name: Minimize cleanup
+  #       if: always()
+  #       run: |
+  #         npm cache clean --force
+  #         rm -rf frontend/node_modules backend/node_modules
+  #         rm -rf ~/.npm
+  # build-and-push-docker:
+  #   if: github.event_name != 'pull_request'
+  #   needs: build-and-test
+  #   runs-on: self-hosted
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v1
+
+  #     - name: Login to DockerHub
+  #       uses: docker/login-action@v1
+  #       with:
+  #         username: ${{ secrets.DOCKER_HUB_USERNAME }}
+  #         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+  #     - name: Build and push frontend Docker image
+  #       run: |
+  #         docker buildx create --use
+  #         docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }} -f frontend/Dockerfile frontend --push
+
+  #     - name: Build and push backend Docker image
+  #       run: |
+  #         docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }} -f backend/Dockerfile backend --push
+
+  #     - name: Run Trivy vulnerability scanner on frontend image
+  #       run: |
+  #         trivy image --format json --output trivy-results-frontend.json --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }}
+
+  #     - name: Run Trivy vulnerability scanner on backend image
+  #       run: |
+  #         trivy image --format json --output trivy-results-backend.json --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}
+
+  #     - name: Upload Docker image scan results
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: docker-scan-results
+  #         path: |
+  #           trivy-results-frontend.json
+  #           trivy-results-backend.json
 
 
-      - name: Set up SSH for Kind cluster access
-        run: |
-          ssh-keygen -t rsa -b 4096 -f ~/.ssh/kind_cluster_key -N ""
-          cat ~/.ssh/kind_cluster_key.pub >> ~/.ssh/authorized_keys
-          sudo sed -i '' 's/#PermitUserEnvironment no/PermitUserEnvironment yes/' /etc/ssh/sshd_config
-          sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
-          sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
+  # deploy-and-test:
+  #   if: github.event_name != 'pull_request'
+  #   needs: build-and-push-docker
+  #   runs-on: self-hosted
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Get IP address
-        id: ip
-        run: |
-          IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | head -n1)
-          echo "::set-output name=ip::$IP"
-          echo "IP Address: $IP"
+  #     - name: Install kubectl
+  #       run: brew install kubectl
 
-      - name: Display connection information
-        run: |
-          echo "To connect to the Kind cluster, use the following steps:"
-          echo "1. Save this private key to your local machine:"
-          cat ~/.ssh/kind_cluster_key
-          echo "2. Set correct permissions: chmod 600 kind_cluster_key"
-          echo "3. SSH to the runner: ssh -i kind_cluster_key ${{ github.actor }}@${{ steps.ip.outputs.ip }}"
-          echo "4. Once connected, you can interact with the Kind cluster using kubectl"
+  #     - name: Install Kind
+  #       run: brew install kind
 
-      - name: Keep runner alive
-        run: |
-          echo "Runner will stay alive for 1 hour for SSH access"
-          sleep 3600
+  #     - name: Create k8s Kind Cluster
+  #       run: kind create cluster --name task-management-cluster
 
-      - name: Clean up
-        if: always()
-        run: |
-          kind delete cluster --name task-management-cluster
-          rm ~/.ssh/kind_cluster_key*
-          sed -i '' '/kind_cluster_key/d' ~/.ssh/authorized_keys
+  #     - name: Deploy to Kind Cluster
+  #       run: |
+  #         sed -i '' "s|image: .*frontend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }}|" k8s/*frontend*.yaml
+  #         sed -i '' "s|image: .*backend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}|" k8s/*backend*.yaml
+  #         kubectl apply -f k8s/
+
+
+  #     - name: Set up SSH for Kind cluster access
+  #       run: |
+  #         ssh-keygen -t rsa -b 4096 -f ~/.ssh/kind_cluster_key -N ""
+  #         cat ~/.ssh/kind_cluster_key.pub >> ~/.ssh/authorized_keys
+  #         sudo sed -i '' 's/#PermitUserEnvironment no/PermitUserEnvironment yes/' /etc/ssh/sshd_config
+  #         sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
+  #         sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
+
+  #     - name: Get IP address
+  #       id: ip
+  #       run: |
+  #         IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | head -n1)
+  #         echo "::set-output name=ip::$IP"
+  #         echo "IP Address: $IP"
+
+  #     - name: Display connection information
+  #       run: |
+  #         echo "To connect to the Kind cluster, use the following steps:"
+  #         echo "1. Save this private key to your local machine:"
+  #         cat ~/.ssh/kind_cluster_key
+  #         echo "2. Set correct permissions: chmod 600 kind_cluster_key"
+  #         echo "3. SSH to the runner: ssh -i kind_cluster_key ${{ github.actor }}@${{ steps.ip.outputs.ip }}"
+  #         echo "4. Once connected, you can interact with the Kind cluster using kubectl"
+
+  #     - name: Keep runner alive
+  #       run: |
+  #         echo "Runner will stay alive for 1 hour for SSH access"
+  #         sleep 3600
+
+  #     - name: Clean up
+  #       if: always()
+  #       run: |
+  #         kind delete cluster --name task-management-cluster
+  #         rm ~/.ssh/kind_cluster_key*
+  #         sed -i '' '/kind_cluster_key/d' ~/.ssh/authorized_keys
