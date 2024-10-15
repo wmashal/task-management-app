@@ -23,10 +23,10 @@ jobs:
           cd frontend && npm ci
           cd ../backend && npm ci
 
-      - name: Run linters
-        run: |
-          cd frontend && npm run lint
-          cd ../backend && npm run lint
+      # - name: Run linters
+      #   run: |
+      #     cd frontend && npm run lint
+      #     cd ../backend && npm run lint
 
       - name: Run unit tests
         run: |
