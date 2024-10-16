@@ -74,13 +74,15 @@ jobs:
 
       - name: Run Trivy vulnerability scanner in repo mode
         run: |
-          trivy fs --format html --output trivy-results.html --severity HIGH,CRITICAL .
+          trivy plugin install scan2html
+          trivy scan2html fs --scanners vuln,secret,misconfig . interactive_report.html
+          trivy fs --format json --output trivy-results.json --severity HIGH,CRITICAL .
 
       - name: Upload Trivy scan results
         uses: actions/upload-artifact@v4
         with:
           name: trivy-results
-          path: trivy-results.html
+          path: interactive_report.html
 
       - name: Debug After Checkout
         run: |
