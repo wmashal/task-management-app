@@ -20,13 +20,15 @@ jobs:
 
       - name: Install dependencies
         run: |
+          unset NODE_EXTRA_CA_CERTS
           cd frontend && npm ci
           cd ../backend && npm ci
 
-      # - name: Run linters
-      #   run: |
-      #     cd frontend && npm run lint
-      #     cd ../backend && npm run lint
+      - name: Run linters
+        run: |
+          unset NODE_EXTRA_CA_CERTS
+          cd frontend && npm run lint
+          cd ../backend && npm run lint
 
       - name: Run unit tests
         run: |
@@ -101,7 +103,9 @@ jobs:
           echo "Which npm: $(which npm)"
 
       - name: Clear NODE_OPTIONS
-        run: unset NODE_OPTIONS
+        run: |
+          unset NODE_OPTIONS
+          unset NODE_EXTRA_CA_CERTS
 
       - name: Install frontend dependencies
         run: |
