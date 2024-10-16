@@ -57,7 +57,7 @@ jobs:
     
   build-and-test:
     if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Debug Environment Variables
         run: |
@@ -70,7 +70,7 @@ jobs:
 
       - name: Install Trivy
         run: |
-          brew install aquasecurity/trivy/trivy
+          arch -arm64 brew install aquasecurity/trivy/trivy
 
       - name: Run Trivy vulnerability scanner in repo mode
         run: |
@@ -151,7 +151,7 @@ jobs:
         
       - name: Install Java 17
         run: |
-          brew install openjdk@17
+          arch -arm64 brew install openjdk@17
           echo "JAVA_HOME=$(/usr/libexec/java_home -v 17)" >> $GITHUB_ENV
           echo "$JAVA_HOME/bin" >> $GITHUB_PATH
       - name: Verify SonarScanner Installation
@@ -186,7 +186,7 @@ jobs:
           
   build-and-push-docker:
     needs: build-and-test
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
 
