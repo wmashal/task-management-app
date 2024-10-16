@@ -32,6 +32,7 @@ jobs:
 
       - name: Run unit tests
         run: |
+          unset NODE_EXTRA_CA_CERTS
           cd frontend && npm test -- --passWithNoTests
           cd ../backend && npm test
 
@@ -105,10 +106,11 @@ jobs:
       - name: Clear NODE_OPTIONS
         run: |
           unset NODE_OPTIONS
-          unset NODE_EXTRA_CA_CERTS
+          
 
       - name: Install frontend dependencies
         run: |
+          unset NODE_EXTRA_CA_CERTS
           cd frontend
           if [ -f package-lock.json ]; then
             npm ci
@@ -118,6 +120,7 @@ jobs:
 
       - name: Install backend dependencies
         run: |
+          unset NODE_EXTRA_CA_CERTS
           cd backend
           if [ -f package-lock.json ]; then
             npm ci
@@ -131,27 +134,45 @@ jobs:
 
       - name: Run backend tests with coverage
         run: |
+          unset NODE_EXTRA_CA_CERTS
           cd backend
           npm test
+
+      - name: Check coverage files
+        run: |
+            echo "Frontend coverage:"
+            ls -l frontend/coverage/lcov.info
+            head -n 20 frontend/coverage/lcov.info
+            echo "Backend coverage:"
+            ls -l backend/coverage/lcov.info
+            head -n 20 backend/coverage/lcov.info
+
+      - name: Check Java version
+        run: java -version
+
+      - name: Install Java 17
+        run: |
+          arch -arm64 brew install openjdk@17
+          echo "JAVA_HOME=$(/usr/libexec/java_home -v 17)" >> $GITHUB_ENV
+          echo "$JAVA_HOME/bin" >> $GITHUB_PATH
       - name: Install SonarScanner
         run: |
           arch -arm64 brew install sonar-scanner
           echo "$(brew --prefix)/bin" >> $GITHUB_PATH
 
-      - name: Check coverage files
+      - name: Verify SonarScanner Installation
         run: |
-          echo "Frontend coverage:"
-          ls -l frontend/coverage/lcov.info
-          head -n 20 frontend/coverage/lcov.info
-          echo "Backend coverage:"
-          ls -l backend/coverage/lcov.info
-          head -n 20 backend/coverage/lcov.info
+          sonar-scanner --version
+          which sonar-scanner
+        
 
       - name: Run SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
         run: |
+          $JAVA_HOME/bin/java -version          
           sonar-scanner \
           -Dsonar.projectKey=task-management-app \
           -Dsonar.sources=frontend/src,backend \
