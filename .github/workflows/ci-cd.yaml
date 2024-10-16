@@ -211,10 +211,12 @@ jobs:
 
       - name: Run Trivy vulnerability scanner on frontend image
         run: |
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-results-frontend.html --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }}
           trivy image --format json --output trivy-results-frontend.json --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-frontend:${{ github.sha }}
 
       - name: Run Trivy vulnerability scanner on backend image
         run: |
+          trivy image --format template --template "@contrib/html.tpl" -o trivy-results-backend.html --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}
           trivy image --format json --output trivy-results-backend.json --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}
 
       - name: Upload Docker image scan results
@@ -224,6 +226,8 @@ jobs:
           path: |
             trivy-results-frontend.json
             trivy-results-backend.json
+            trivy-results-frontend.html
+            trivy-results-backend.html
 
 
   deploy-and-test:
