@@ -22,7 +22,7 @@ describe('App Component', () => {
         render(<App />);
         await waitFor(() => expect(screen.getByText(/Task 1/i)).toBeInTheDocument())
             expect(screen.getByText(/Task 2/i)).toBeInTheDocument();
-        expect(axios.get).toHaveBeenCalledWith('http://localhost:5000/tasks');
+        expect(axios.get).toHaveBeenCalledWith('http://backend:5000/tasks');
     });
     test('adds a new task', async () => {
         axios.post.mockResolvedValueOnce({ data: { id: 3, title: 'New Task', description: 'New Description' } });
@@ -34,6 +34,6 @@ describe('App Component', () => {
         await waitFor(() =>
             expect(screen.getByText(/New Task/i)).toBeInTheDocument())
             expect(screen.getByText(/New Description/i)).toBeInTheDocument();
-        expect(axios.post).toHaveBeenCalledWith('http://localhost:5000/tasks', { title: 'New Task', description: 'New Description' });
+        expect(axios.post).toHaveBeenCalledWith('http://backend:5000/tasks', { title: 'New Task', description: 'New Description' });
     });
 });
