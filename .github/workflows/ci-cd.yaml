@@ -251,7 +251,10 @@ jobs:
           sed -i '' "s|image: .*backend:.*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}|" k8s/*backend*.yaml
           kubectl apply -f k8s/
 
-
+      - name: Install k9s
+        run: |
+          arch -arm64 brew install derailed/k9s/k9s
+          
       - name: Set up SSH for Kind cluster access
         run: |
           ssh-keygen -t rsa -b 4096 -f ~/.ssh/kind_cluster_key -N ""
