@@ -147,19 +147,6 @@ jobs:
             ls -l backend/coverage/lcov.info
             head -n 20 backend/coverage/lcov.info
 
-      - name: Check Java version
-        run: java -version
-
-      - name: Install Java 17
-        run: |
-          arch -arm64 brew install openjdk@17
-          echo "JAVA_HOME=$(/usr/libexec/java_home -v 17)" >> $GITHUB_ENV
-          echo "$JAVA_HOME/bin" >> $GITHUB_PATH
-      - name: Install SonarScanner
-        run: |
-          arch -arm64 brew install sonar-scanner
-          echo "$(brew --prefix)/bin" >> $GITHUB_PATH
-
       - name: Verify SonarScanner Installation
         run: |
           sonar-scanner --version
@@ -170,9 +157,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          JAVA_HOME: ${{ env.JAVA_HOME }}
         run: |
-          $JAVA_HOME/bin/java -version          
           sonar-scanner \
           -Dsonar.projectKey=task-management-app \
           -Dsonar.sources=frontend/src,backend \
