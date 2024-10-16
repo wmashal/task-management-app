@@ -186,7 +186,6 @@ jobs:
           rm -rf ~/.npm
           
   build-and-push-docker:
-    if: github.event_name != 'pull_request'
     needs: build-and-test
     runs-on: self-hosted
     steps:
@@ -228,8 +227,7 @@ jobs:
 
 
   deploy-and-test:
-    if: github.event_name != 'pull_request'
-    needs: build-and-push-docker
+    needs: [build-and-test, build-and-push-docker]
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
