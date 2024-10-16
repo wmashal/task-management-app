@@ -176,7 +176,7 @@ jobs:
           -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info,backend/coverage/lcov.info \
           -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/*.test.ts,**/*.test.tsx,**/node_modules/**,**/coverage/** \
           -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN
+          -Dsonar.login=$SONAR_TOKEN 
 
       - name: Minimize cleanup
         if: always()
@@ -219,7 +219,7 @@ jobs:
           trivy image --format json --output trivy-results-backend.json --severity HIGH,CRITICAL ${{ secrets.DOCKER_HUB_USERNAME }}/task-management-backend:${{ github.sha }}
 
       - name: Upload Docker image scan results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: docker-scan-results
           path: |
