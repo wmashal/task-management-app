@@ -237,10 +237,10 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install kubectl
-        run: brew install kubectl
+        run: arch -arm64 brew install kubectl
 
       - name: Install Kind
-        run: brew install kind
+        run: arch -arm64 brew install kind
 
       - name: Create k8s Kind Cluster
         run: kind create cluster --name task-management-cluster
