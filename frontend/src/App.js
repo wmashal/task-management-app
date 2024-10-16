@@ -12,7 +12,7 @@ function App() {
 
     const fetchTasks = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/tasks');
+            const response = await axios.get('http://backend:5000/tasks');
             setTasks(response.data);
         } catch (error) {
             console.error('Error fetching tasks:', error);
@@ -22,7 +22,7 @@ function App() {
     const createTask = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/tasks', { title, description });
+            await axios.post('http://backend:5000/tasks', { title, description });
             setTitle('');
             setDescription('');
             fetchTasks();
@@ -33,7 +33,7 @@ function App() {
 
     const deleteTask = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/tasks/${id}`);
+            await axios.delete(`http://backend:5000/tasks/${id}`);
             fetchTasks();
         } catch (error) {
             console.error('Error deleting task:', error);
