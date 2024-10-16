@@ -78,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: trivy-results
-          path: ${{ github.workspace }}/reports/trivy-results.json
+          path: trivy-results.json
 
       - name: Debug After Checkout
         run: |
@@ -131,7 +131,7 @@ jobs:
           npm test
       - name: Install SonarScanner
         run: |
-          brew install sonar-scanner
+          arch -arm64 brew install sonar-scanner
           echo "$(brew --prefix)/bin" >> $GITHUB_PATH
 
       - name: Check coverage files
